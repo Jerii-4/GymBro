@@ -42,10 +42,4 @@ export type FoodEntry = {
   source?: "manual" | "openfoodfacts" | "wger";
 };
 
-export type MusicTrack = {
-  id: string;
-  name: string;
-  url: string;
-  duration?: number;
-};
 

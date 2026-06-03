@@ -7,6 +7,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -74,11 +75,3 @@ CREATE TABLE IF NOT EXISTS nutrition_goals (
     phase VARCHAR(50) NOT NULL
 );
 
--- 8. Music Tracks Table
-CREATE TABLE IF NOT EXISTS music_tracks (
-    id VARCHAR(50) PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(100) NOT NULL,
-    url TEXT NOT NULL,
-    duration INTEGER
-);
