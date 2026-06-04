@@ -141,8 +141,8 @@ export const AttendanceHeatmap: React.FC<Props> = ({ sessions }) => {
 
     // Apply a unique border style for today's date cell
     if (dateStr === todayStr) {
-      cellBorder = "2px solid #00f2fe";
-      cellBoxShadow = "0 0 12px rgba(0, 242, 254, 0.4)";
+      cellBorder = "2px solid #ff4a5a";
+      cellBoxShadow = "0 0 12px rgba(255, 74, 90, 0.5)";
     }
 
     dayCells.push(
