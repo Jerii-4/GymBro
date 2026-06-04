@@ -1,6 +1,8 @@
 export type ExerciseSet = {
   reps: number;
   weight?: number;
+  mode?: "reps" | "time";
+  restSeconds?: number;
 };
 
 export type Exercise = {
@@ -8,6 +10,7 @@ export type Exercise = {
   name: string;
   restSeconds?: number;
   sets: ExerciseSet[];
+  mode?: "reps" | "time";
 };
 
 export type Session = {

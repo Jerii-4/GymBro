@@ -26,7 +26,7 @@ router.get("/", async (req: AuthRequest, res: Response) => {
 
     // 3. Fetch sets inside those exercises
     const setsResult = await pool.query(
-      "SELECT es.exercise_id AS \"exerciseId\", es.reps, es.weight FROM exercise_sets es JOIN exercises e ON es.exercise_id = e.id JOIN sessions s ON e.session_id = s.id WHERE s.user_id = $1 ORDER BY es.id ASC",
+      "SELECT es.exercise_id AS \"exerciseId\", es.reps, es.weight, es.rest_seconds AS \"restSeconds\" FROM exercise_sets es JOIN exercises e ON es.exercise_id = e.id JOIN sessions s ON e.session_id = s.id WHERE s.user_id = $1 ORDER BY es.id ASC",
       [userId]
     );
 
@@ -44,6 +44,7 @@ router.get("/", async (req: AuthRequest, res: Response) => {
             .map((s) => ({
               reps: s.reps,
               weight: s.weight ? Number(s.weight) : undefined,
+              restSeconds: s.restSeconds ? Number(s.restSeconds) : undefined,
             }));
           return {
             id: ex.id,
@@ -78,6 +79,13 @@ router.post("/", async (req: AuthRequest, res: Response) => {
   try {
     await client.query("BEGIN");
 
+    // Delete any existing session on the same date for this user to allow overrides (workout <=> rest day)
+    const sessionDate = new Date(performedAt).toISOString().slice(0, 10);
+    await client.query(
+      "DELETE FROM sessions WHERE user_id = $1 AND TO_CHAR(performed_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') = $2",
+      [userId, sessionDate]
+    );
+
     // Insert session linked to user_id
     await client.query(
       "INSERT INTO sessions (id, user_id, day_label, performed_at, body_weight_kg) VALUES ($1, $2, $3, $4, $5)",
@@ -94,8 +102,8 @@ router.post("/", async (req: AuthRequest, res: Response) => {
         if (ex.sets && Array.isArray(ex.sets)) {
           for (const set of ex.sets) {
             await client.query(
-              "INSERT INTO exercise_sets (exercise_id, reps, weight) VALUES ($1, $2, $3)",
-              [ex.id, set.reps, set.weight || null]
+              "INSERT INTO exercise_sets (exercise_id, reps, weight, rest_seconds) VALUES ($1, $2, $3, $4)",
+              [ex.id, set.reps, set.weight || null, set.restSeconds || null]
             );
           }
         }

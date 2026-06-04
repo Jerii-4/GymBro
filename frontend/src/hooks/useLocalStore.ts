@@ -17,7 +17,10 @@ type Store = {
   measurements: Measurement[];
   foods: FoodEntry[];
   goals?: NutritionGoals;
+  userCreatedAt: string | null;
   isLoading: boolean;
+  weightUnit: "kg" | "lbs";
+  setWeightUnit: (unit: "kg" | "lbs") => void;
   
   // Authentication Actions
   login: (username: string, password: string) => Promise<boolean>;
@@ -36,15 +39,24 @@ type Store = {
 // Retrieve cached auth token and username on startup
 const savedToken = localStorage.getItem("gymbro_token");
 const savedUsername = localStorage.getItem("gymbro_username");
+const savedUserCreatedAt = localStorage.getItem("gymbro_user_created_at");
+const savedWeightUnit = localStorage.getItem("gymbro_weight_unit") as "kg" | "lbs" | null;
 
 export const useLocalStore = create<Store>((set, get) => ({
   token: savedToken,
   username: savedUsername,
+  userCreatedAt: savedUserCreatedAt,
   sessions: [],
   measurements: [],
   foods: [],
   goals: undefined,
   isLoading: false,
+  weightUnit: savedWeightUnit || "kg",
+
+  setWeightUnit: (unit: "kg" | "lbs") => {
+    localStorage.setItem("gymbro_weight_unit", unit);
+    set({ weightUnit: unit });
+  },
 
   // Login handler
   login: async (username, password) => {
@@ -60,13 +72,16 @@ export const useLocalStore = create<Store>((set, get) => ({
         throw new Error(errorData.error || "Login failed");
       }
 
-      const { token, username: returnedUsername } = await res.json();
+      const { token, username: returnedUsername, createdAt } = await res.json();
 
       // Save token to localStorage to persist session
       localStorage.setItem("gymbro_token", token);
       localStorage.setItem("gymbro_username", returnedUsername);
+      if (createdAt) {
+        localStorage.setItem("gymbro_user_created_at", createdAt);
+      }
 
-      set({ token, username: returnedUsername });
+      set({ token, username: returnedUsername, userCreatedAt: createdAt || null });
       await get().fetchInitialData(); // Load the logged-in user's database records
       return true;
     } catch (err) {
@@ -99,9 +114,11 @@ export const useLocalStore = create<Store>((set, get) => ({
   logout: () => {
     localStorage.removeItem("gymbro_token");
     localStorage.removeItem("gymbro_username");
+    localStorage.removeItem("gymbro_user_created_at");
     set({
       token: null,
       username: null,
+      userCreatedAt: null,
       sessions: [],
       measurements: [],
       foods: [],
@@ -117,11 +134,12 @@ export const useLocalStore = create<Store>((set, get) => ({
     set({ isLoading: true });
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const [sessionsRes, measurementsRes, foodsRes, goalsRes] = await Promise.all([
+      const [sessionsRes, measurementsRes, foodsRes, goalsRes, meRes] = await Promise.all([
         fetch(`${API_BASE}/sessions`, { headers }),
         fetch(`${API_BASE}/measurements`, { headers }),
         fetch(`${API_BASE}/foods`, { headers }),
         fetch(`${API_BASE}/foods/goals`, { headers }),
+        fetch(`${API_BASE}/auth/me`, { headers }),
       ]);
 
       if (
@@ -138,12 +156,18 @@ export const useLocalStore = create<Store>((set, get) => ({
       const measurements = measurementsRes.ok ? await measurementsRes.json() : [];
       const foods = foodsRes.ok ? await foodsRes.json() : [];
       const goals = goalsRes.ok ? await goalsRes.json() : null;
+      const me = meRes.ok ? await meRes.json() : null;
+
+      if (me && me.createdAt) {
+        localStorage.setItem("gymbro_user_created_at", me.createdAt);
+      }
 
       set({
         sessions,
         measurements,
         foods,
         goals: goals || undefined,
+        userCreatedAt: me?.createdAt || get().userCreatedAt,
         isLoading: false,
       });
     } catch (err) {
@@ -157,7 +181,14 @@ export const useLocalStore = create<Store>((set, get) => ({
     const token = get().token;
     if (!token) return;
 
-    set((state) => ({ sessions: [session, ...state.sessions] }));
+    const newSessionDate = new Date(session.performedAt).toISOString().slice(0, 10);
+    set((state) => {
+      const filtered = state.sessions.filter((s) => {
+        const sDate = new Date(s.performedAt).toISOString().slice(0, 10);
+        return sDate !== newSessionDate;
+      });
+      return { sessions: [session, ...filtered] };
+    });
     try {
       const res = await fetch(`${API_BASE}/sessions`, {
         method: "POST",

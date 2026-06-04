@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS exercise_sets (
     id SERIAL PRIMARY KEY,
     exercise_id VARCHAR(50) NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
     reps INTEGER NOT NULL,
-    weight NUMERIC(5, 2)
+    weight NUMERIC(5, 2),
+    rest_seconds INTEGER
 );
 
 -- 5. Body Measurements Table

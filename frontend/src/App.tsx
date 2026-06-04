@@ -8,12 +8,14 @@ import { Login } from "./components/Login";
 import { useLocalStore, usePersistedEffect } from "./hooks/useLocalStore";
 import { Session } from "./types";
 import Orb from "./components/Orb";
+import { ContactModal } from "./components/ContactModal";
 
 
 const App: React.FC = () => {
   const { token, username, logout, sessions, measurements, addMeasurement } = useLocalStore();
   const [view, setView] = useState<"landing" | "login" | "dashboard">("landing");
   const [activeTab, setActiveTab] = useState<"workouts" | "attendance" | "gains" | "diet">("workouts");
+  const [showContact, setShowContact] = useState(false);
 
   usePersistedEffect();
 
@@ -99,32 +101,55 @@ const App: React.FC = () => {
             </span>
           </div>
 
-          <button
-            onClick={() => {
-              if (token) {
-                setView("dashboard");
-              } else {
-                setView("login");
-              }
-            }}
-            style={{
-              border: "1px solid rgba(0, 242, 254, 0.3)",
-              padding: "6px 16px",
-              borderRadius: "10px",
-              fontSize: "0.85rem",
-              fontWeight: 700,
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(161, 140, 209, 0.8)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
-            }}
-          >
-            <span className="gradient-text">{token ? "Dashboard" : "Login"}</span>
-          </button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              onClick={() => {
+                if (token) {
+                  setView("dashboard");
+                } else {
+                  setView("login");
+                }
+              }}
+              style={{
+                border: "1px solid rgba(0, 242, 254, 0.3)",
+                padding: "6px 16px",
+                borderRadius: "10px",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(161, 140, 209, 0.8)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
+              }}
+            >
+              <span className="gradient-text">{token ? "Dashboard" : "Login"}</span>
+            </button>
+
+            <button
+              onClick={() => setShowContact(true)}
+              style={{
+                border: "1px solid rgba(0, 242, 254, 0.3)",
+                padding: "6px 16px",
+                borderRadius: "10px",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(161, 140, 209, 0.8)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
+              }}
+            >
+              <span className="gradient-text">Contact</span>
+            </button>
+          </div>
         </header>
 
         {/* Content Wrapper */}
@@ -212,9 +237,9 @@ const App: React.FC = () => {
             }}
           >
             <div className="glass-card" style={{ textAlign: "left" }}>
-              <div style={{ display: "flex", gap: "8px", fontSize: "1.8rem", marginBottom: "8px" }}>
-                <span>💪</span>
-                <span>🗓️</span>
+              <div style={{ display: "flex", gap: "10px", marginBottom: "12px", height: "40px", alignItems: "center" }}>
+                <img src="/exercise.png" alt="Workouts" style={{ height: "36px", width: "auto" }} />
+                <img src="/attendance.png" alt="Attendance" style={{ height: "36px", width: "auto" }} />
               </div>
               <h3 className="gradient-text">
                 Workout & Attendance
@@ -225,7 +250,9 @@ const App: React.FC = () => {
             </div>
 
             <div className="glass-card" style={{ textAlign: "left" }}>
-              <div style={{ fontSize: "1.8rem", marginBottom: "8px" }}>📈</div>
+              <div style={{ display: "flex", marginBottom: "12px", height: "40px", alignItems: "center" }}>
+                <img src="/gain.png" alt="Gains" style={{ height: "36px", width: "auto" }} />
+              </div>
               <h3 className="gradient-text">
                 Gains Progress
               </h3>
@@ -235,7 +262,9 @@ const App: React.FC = () => {
             </div>
 
             <div className="glass-card" style={{ textAlign: "left" }}>
-              <div style={{ fontSize: "1.8rem", marginBottom: "8px" }}>🥗</div>
+              <div style={{ display: "flex", marginBottom: "12px", height: "40px", alignItems: "center" }}>
+                <img src="/nutrition.png" alt="Diet" style={{ height: "36px", width: "auto" }} />
+              </div>
               <h3 className="gradient-text">
                 Smart Diet
               </h3>
@@ -245,6 +274,7 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
       </div>
     );
   }
@@ -296,20 +326,41 @@ const App: React.FC = () => {
           >
             <span className="gradient-text">Home</span>
           </button>
+          
+          <button
+            onClick={() => setShowContact(true)}
+            style={{
+              border: "1px solid rgba(0, 242, 254, 0.3)",
+              padding: "8px 16px",
+              fontSize: "0.9rem",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "rgba(161, 140, 209, 0.8)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
+            }}
+          >
+            <span className="gradient-text">Contact</span>
+          </button>
           <button
             onClick={handleLogout}
             style={{
-              background: "#eb5757",
-              color: "#ffffff",
+              background: "transparent",
+              color: "#a18cd1",
+              border: "1px solid #a18cd1",
               padding: "8px 16px",
               fontSize: "0.9rem",
               boxShadow: "none",
+              transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#e04b4b";
+              e.currentTarget.style.background = "rgba(161, 140, 209, 0.1)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "#eb5757";
+              e.currentTarget.style.background = "transparent";
             }}
           >
             Log Out
@@ -343,9 +394,22 @@ const App: React.FC = () => {
             color: activeTab === "workouts" ? "transparent" : "#7a8190",
             border: activeTab === "workouts" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
             transition: "all 0.15s ease",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          💪 Workouts
+          <img
+            src="/exercise.png"
+            alt=""
+            style={{
+              width: "18px",
+              height: "18px",
+              objectFit: "contain",
+              filter: activeTab === "workouts" ? "none" : "grayscale(1) opacity(0.6)"
+            }}
+          />
+          Workouts
         </span>
         <span
           onClick={() => setActiveTab("gains")}
@@ -362,9 +426,22 @@ const App: React.FC = () => {
             color: activeTab === "gains" ? "transparent" : "#7a8190",
             border: activeTab === "gains" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
             transition: "all 0.15s ease",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          📈 Gains
+          <img
+            src="/gain.png"
+            alt=""
+            style={{
+              width: "18px",
+              height: "18px",
+              objectFit: "contain",
+              filter: activeTab === "gains" ? "none" : "grayscale(1) opacity(0.6)"
+            }}
+          />
+          Gains
         </span>
         <span
           onClick={() => setActiveTab("diet")}
@@ -381,9 +458,22 @@ const App: React.FC = () => {
             color: activeTab === "diet" ? "transparent" : "#7a8190",
             border: activeTab === "diet" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
             transition: "all 0.15s ease",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          🥗 Nutrition
+          <img
+            src="/nutrition.png"
+            alt=""
+            style={{
+              width: "18px",
+              height: "18px",
+              objectFit: "contain",
+              filter: activeTab === "diet" ? "none" : "grayscale(1) opacity(0.6)"
+            }}
+          />
+          Nutrition
         </span>
         <span
           onClick={() => setActiveTab("attendance")}
@@ -400,9 +490,22 @@ const App: React.FC = () => {
             color: activeTab === "attendance" ? "transparent" : "#7a8190",
             border: activeTab === "attendance" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
             transition: "all 0.15s ease",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
           }}
         >
-          📅 Attendance
+          <img
+            src="/attendance.png"
+            alt=""
+            style={{
+              width: "18px",
+              height: "18px",
+              objectFit: "contain",
+              filter: activeTab === "attendance" ? "none" : "grayscale(1) opacity(0.6)"
+            }}
+          />
+          Attendance
         </span>
       </div>
 
@@ -432,6 +535,7 @@ const App: React.FC = () => {
         </div>
       )}
       </div>
+      <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
     </div>
   );
 };

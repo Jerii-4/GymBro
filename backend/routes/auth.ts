@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../db";
+import { authenticateToken, AuthRequest } from "../middleware/auth";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || "gymbro_fallback_secret_key";
@@ -46,7 +47,7 @@ router.post("/register", async (req: Request, res: Response) => {
 
 // POST /login - Check credentials and issue a signed JWT
 router.post("/login", async (req: Request, res: Response) => {
-  const { username, password } = req.body; // username can be username or email
+  const { username, password } = req.body;
 
   if (!username || !password) {
     return res.status(400).json({ error: "Username/Email and password are required" });
@@ -55,7 +56,7 @@ router.post("/login", async (req: Request, res: Response) => {
   try {
     // Find user in database by username OR email
     const result = await pool.query(
-      "SELECT id, username, password_hash AS \"passwordHash\" FROM users WHERE username = $1 OR email = $1",
+      "SELECT id, username, created_at AS \"createdAt\", password_hash AS \"passwordHash\" FROM users WHERE username = $1 OR email = $1",
       [username]
     );
 
@@ -81,10 +82,30 @@ router.post("/login", async (req: Request, res: Response) => {
     res.json({
       token,
       username: user.username,
+      createdAt: user.createdAt,
     });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ error: "Internal server error during login" });
+  }
+});
+
+// GET /me - Retrieve current user details including registration date
+router.get("/me", authenticateToken, async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.userId;
+  try {
+    const result = await pool.query(
+      "SELECT username, email, created_at AS \"createdAt\" FROM users WHERE id = $1",
+      [userId]
+    );
+    const user = result.rows[0];
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

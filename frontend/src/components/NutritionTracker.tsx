@@ -53,11 +53,11 @@ const calcGoals = (weightKg: number, phase: NutritionPhase) => {
 export const NutritionTracker: React.FC = () => {
   const { foods, goals, addFood, removeFood, upsertGoals } = useLocalStore();
   const [phase, setPhase] = useState<NutritionPhase>(goals?.phase ?? "maintenance");
-  const [weight, setWeight] = useState<number>(70);
+  const [weight, setWeight] = useState<number | "">(70);
   const [name, setName] = useState("");
-  const [grams, setGrams] = useState(100);
-  const [protein, setProtein] = useState(0);
-  const [calories, setCalories] = useState(0);
+  const [grams, setGrams] = useState<number | "">(100);
+  const [protein, setProtein] = useState<number | "">(0);
+  const [calories, setCalories] = useState<number | "">(0);
   const [loading, setLoading] = useState(false);
 
   const totals = useMemo(
@@ -66,13 +66,21 @@ export const NutritionTracker: React.FC = () => {
   );
 
   const handleGoals = () => {
+    if (weight === "") return;
     const { protein: proteinTarget, calories: calorieTarget } = calcGoals(weight, phase);
     upsertGoals({ proteinTarget, calorieTarget, phase });
   };
 
   const handleAddFood = (source?: FoodEntry["source"]) => {
-    if (!name || grams <= 0) return;
-    addFood({ id: uuid(), name, grams, protein, calories, source: source ?? "manual" });
+    if (!name || grams === "" || grams <= 0) return;
+    addFood({
+      id: uuid(),
+      name,
+      grams: Number(grams),
+      protein: protein === "" ? 0 : Number(protein),
+      calories: calories === "" ? 0 : Number(calories),
+      source: source ?? "manual"
+    });
     setName("");
     setProtein(0);
     setCalories(0);
@@ -89,8 +97,8 @@ export const NutritionTracker: React.FC = () => {
       const product = data.products?.[0];
       const protein100 = Number(product?.nutriments?.proteins_100g ?? 0);
       const kcal100 = Number(product?.nutriments?.["energy-kcal_100g"] ?? product?.nutriments?.energy_value ?? 0);
-      setProtein((protein100 * grams) / 100);
-      setCalories((kcal100 * grams) / 100);
+      setProtein((protein100 * Number(grams)) / 100);
+      setCalories((kcal100 * Number(grams)) / 100);
       handleAddFood("openfoodfacts");
     } finally {
       setLoading(false);
@@ -106,8 +114,8 @@ export const NutritionTracker: React.FC = () => {
       const ingredient = data.results?.[0];
       const protein100 = Number(ingredient?.protein ?? 0);
       const kcal100 = Number(ingredient?.energy ?? 0);
-      setProtein((protein100 * grams) / 100);
-      setCalories((kcal100 * grams) / 100);
+      setProtein((protein100 * Number(grams)) / 100);
+      setCalories((kcal100 * Number(grams)) / 100);
       handleAddFood("wger");
     } finally {
       setLoading(false);
@@ -115,8 +123,11 @@ export const NutritionTracker: React.FC = () => {
   };
 
   return (
-    <div className="card">
-      <h2>Protein & Calories</h2>
+    <div className="card scrollable-card">
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+        <img src="/nutrition.png" alt="" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+        <h2 style={{ margin: 0 }}>Protein & Calories</h2>
+      </div>
       <div className="nutrition-columns-grid">
         {/* Left Column: Goals and Targets */}
         <div className="nutrition-column-left">
@@ -134,7 +145,7 @@ export const NutritionTracker: React.FC = () => {
               <input
                 type="number"
                 value={weight}
-                onChange={(e) => setWeight(Number(e.target.value))}
+                onChange={(e) => setWeight(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="Your current weight"
                 style={{ margin: "4px 0 8px" }}
               />
@@ -165,7 +176,7 @@ export const NutritionTracker: React.FC = () => {
               <input
                 type="number"
                 value={grams}
-                onChange={(e) => setGrams(Number(e.target.value))}
+                onChange={(e) => setGrams(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="100"
                 style={{ margin: "4px 0 10px" }}
               />
@@ -177,7 +188,7 @@ export const NutritionTracker: React.FC = () => {
               <input
                 type="number"
                 value={protein}
-                onChange={(e) => setProtein(Number(e.target.value))}
+                onChange={(e) => setProtein(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="e.g. 31"
                 style={{ margin: "4px 0 10px" }}
               />
@@ -187,7 +198,7 @@ export const NutritionTracker: React.FC = () => {
               <input
                 type="number"
                 value={calories}
-                onChange={(e) => setCalories(Number(e.target.value))}
+                onChange={(e) => setCalories(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="e.g. 165"
                 style={{ margin: "4px 0 10px" }}
               />
@@ -217,11 +228,30 @@ export const NutritionTracker: React.FC = () => {
                 {f.source ? `· ${f.source}` : ""}
               </div>
             </div>
-            <button onClick={() => removeFood(f.id)}>Remove</button>
+            <button
+              onClick={() => removeFood(f.id)}
+              style={{
+                background: "transparent",
+                color: "#a18cd1",
+                border: "1px solid #a18cd1",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                fontSize: "0.8rem",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(161, 140, 209, 0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+              }}
+            >
+              Remove
+            </button>
           </div>
         ))}
       </div>
     </div>
   );
 };
-
