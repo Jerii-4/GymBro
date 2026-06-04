@@ -117,80 +117,96 @@ export const NutritionTracker: React.FC = () => {
   return (
     <div className="card">
       <h2>Protein & Calories</h2>
-      <div className="grid">
-        <div>
-          <label>Phase</label>
-          <select value={phase} onChange={(e) => setPhase(e.target.value as NutritionPhase)}>
-            <option value="bulking">Bulking</option>
-            <option value="cutting">Cutting</option>
-            <option value="maintenance">Maintaining</option>
-          </select>
+      <div className="nutrition-columns-grid">
+        {/* Left Column: Goals and Targets */}
+        <div className="nutrition-column-left">
+          <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "12px" }}>
+            <div>
+              <label>Phase</label>
+              <select value={phase} onChange={(e) => setPhase(e.target.value as NutritionPhase)} style={{ margin: "4px 0 8px" }}>
+                <option value="bulking">Bulking</option>
+                <option value="cutting">Cutting</option>
+                <option value="maintenance">Maintaining</option>
+              </select>
+            </div>
+            <div>
+              <label>Weight (kg)</label>
+              <input
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(Number(e.target.value))}
+                placeholder="Your current weight"
+                style={{ margin: "4px 0 8px" }}
+              />
+            </div>
+          </div>
+          <button onClick={handleGoals} style={{ width: "100%", marginTop: "4px", marginBottom: "16px" }}>Set goals</button>
+
+          {goals ? (
+            <div className="grid" style={{ marginTop: 8, gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", justifyItems: "center" }}>
+              <ProgressRing value={totals.protein} target={goals.proteinTarget} label="Protein (g)" />
+              <ProgressRing value={totals.calories} target={goals.calorieTarget} label="Calories" />
+            </div>
+          ) : (
+            <p className="muted" style={{ margin: "16px 0 0" }}>Pick phase + weight to generate your targets.</p>
+          )}
         </div>
-        <div>
-          <label>Weight (kg)</label>
-          <input
-            type="number"
-            value={weight}
-            onChange={(e) => setWeight(Number(e.target.value))}
-            placeholder="Your current weight"
-          />
+
+        {/* Right Column: Add Food */}
+        <div className="nutrition-column-right">
+          <h3 style={{ margin: "0 0 12px" }}>Add food</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "12px" }}>
+            <div>
+              <label>Food name</label>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Chicken breast" style={{ margin: "4px 0 10px" }} />
+            </div>
+            <div>
+              <label>Weight (g)</label>
+              <input
+                type="number"
+                value={grams}
+                onChange={(e) => setGrams(Number(e.target.value))}
+                placeholder="100"
+                style={{ margin: "4px 0 10px" }}
+              />
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "4px" }}>
+            <div>
+              <label>Protein (g)</label>
+              <input
+                type="number"
+                value={protein}
+                onChange={(e) => setProtein(Number(e.target.value))}
+                placeholder="e.g. 31"
+                style={{ margin: "4px 0 10px" }}
+              />
+            </div>
+            <div>
+              <label>Calories</label>
+              <input
+                type="number"
+                value={calories}
+                onChange={(e) => setCalories(Number(e.target.value))}
+                placeholder="e.g. 165"
+                style={{ margin: "4px 0 10px" }}
+              />
+            </div>
+          </div>
+
+          <div className="chips" style={{ marginTop: "16px" }}>
+            <button onClick={() => handleAddFood("manual")}>Save manual</button>
+            <button onClick={fetchOpenFoodFacts} disabled={loading}>
+              Use OpenFoodFacts
+            </button>
+            <button onClick={fetchWger} disabled={loading}>
+              Use WGER
+            </button>
+          </div>
         </div>
-        <button onClick={handleGoals}>Set goals</button>
       </div>
 
-      {goals ? (
-        <div className="grid" style={{ marginTop: 14 }}>
-          <ProgressRing value={totals.protein} target={goals.proteinTarget} label="Protein (g)" />
-          <ProgressRing value={totals.calories} target={goals.calorieTarget} label="Calories" />
-        </div>
-      ) : (
-        <p className="muted">Pick phase + weight to generate your targets.</p>
-      )}
-
-      <div style={{ marginTop: 14 }}>
-        <h3 style={{ margin: "12px 0 4px" }}>Add food</h3>
-        <label>Food name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Chicken breast" />
-        <label>Weight (grams)</label>
-        <input
-          type="number"
-          value={grams}
-          onChange={(e) => setGrams(Number(e.target.value))}
-          placeholder="100"
-        />
-        <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
-          <div>
-            <label>Protein (g)</label>
-            <input
-              type="number"
-              value={protein}
-              onChange={(e) => setProtein(Number(e.target.value))}
-              placeholder="e.g. 31"
-            />
-          </div>
-          <div>
-            <label>Calories</label>
-            <input
-              type="number"
-              value={calories}
-              onChange={(e) => setCalories(Number(e.target.value))}
-              placeholder="e.g. 165"
-            />
-          </div>
-        </div>
-
-        <div className="chips">
-          <button onClick={() => handleAddFood("manual")}>Save manual</button>
-          <button onClick={fetchOpenFoodFacts} disabled={loading}>
-            Use OpenFoodFacts
-          </button>
-          <button onClick={fetchWger} disabled={loading}>
-            Use WGER
-          </button>
-        </div>
-      </div>
-
-      <div className="list" style={{ marginTop: 12 }}>
+      <div className="list" style={{ marginTop: 24, borderTop: "1px solid #1f2430", paddingTop: "16px" }}>
         {foods.length === 0 && <p className="muted">No foods logged yet.</p>}
         {foods.map((f) => (
           <div key={f.id} className="list-item">

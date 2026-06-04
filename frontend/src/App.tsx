@@ -49,7 +49,7 @@ const App: React.FC = () => {
   // 1. Show Landing Page View
   if (view === "landing") {
     return (
-      <div className="landing-wrapper">
+      <div className="landing-wrapper animate-fade-in-up">
         {/* Background WebGL Orb */}
         <div className="landing-orb-container">
           <Orb
@@ -78,11 +78,12 @@ const App: React.FC = () => {
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <img
-              src="/logo.jpg"
+              src="/logo.png"
               alt="GymBro Logo"
               style={{
                 width: "32px",
                 height: "32px",
+                objectFit: "cover",
                 borderRadius: "50%",
                 border: "1.5px solid rgba(0, 242, 254, 0.4)",
               }}
@@ -255,7 +256,8 @@ const App: React.FC = () => {
 
   // 3. Show Dashboard View (Authenticated)
   return (
-    <div className="app-shell">
+    <div className="dashboard-wrapper">
+      <div className="app-shell animate-fade-in-up">
       {/* Header bar with user welcome message and Log Out button */}
       <div
         style={{
@@ -406,29 +408,30 @@ const App: React.FC = () => {
 
       {/* Tab Contents */}
       {activeTab === "workouts" && (
-        <div className="grid">
+        <div key="workouts" className="grid animate-tab-enter">
           <SessionForm onCreated={onSessionCreated} />
           <SessionHistory sessions={sessions} />
         </div>
       )}
 
       {activeTab === "attendance" && (
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+        <div key="attendance" className="animate-tab-enter" style={{ maxWidth: "800px", margin: "0 auto" }}>
           <AttendanceHeatmap sessions={sessions} />
         </div>
       )}
 
       {activeTab === "gains" && (
-        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+        <div key="gains" className="animate-tab-enter" style={{ maxWidth: "600px", margin: "0 auto" }}>
           <GainsPanel measurements={measurements} onAdd={addMeasurement} />
         </div>
       )}
 
       {activeTab === "diet" && (
-        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+        <div key="diet" className="animate-tab-enter" style={{ maxWidth: "850px", margin: "0 auto" }}>
           <NutritionTracker />
         </div>
       )}
+      </div>
     </div>
   );
 };

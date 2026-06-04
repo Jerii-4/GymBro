@@ -71,7 +71,7 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
         padding: "20px",
       }}
     >
-      <div className="card" style={{ width: "100%", maxWidth: "420px", padding: "32px" }}>
+      <div className="card animate-fade-in-up" style={{ width: "100%", maxWidth: "420px", padding: "32px" }}>
         {onBack && (
           <div
             onClick={onBack}
