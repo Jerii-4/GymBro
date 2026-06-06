@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { useLocalStore } from "../hooks/useLocalStore";
 
 interface LoginProps {
-  onBack?: () => void;
+  onBack: () => void;
+  onAboutClick: () => void;
+  onContactClick: () => void;
 }
 
-export const Login: React.FC<LoginProps> = ({ onBack }) => {
+export const Login: React.FC<LoginProps> = ({ onBack, onAboutClick, onContactClick }) => {
   const { login, register } = useLocalStore();
   const [isRegistering, setIsRegistering] = useState(false);
   const [username, setUsername] = useState("");
@@ -35,10 +37,8 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
 
     try {
       if (isRegistering) {
-        // Register flow with username, email, and password
         const success = await register(username, email, password);
         if (success) {
-          // Auto login after successful registration using the registered username
           const loginSuccess = await login(username, password);
           if (!loginSuccess) {
             setError("Account created, but automatic login failed. Please sign in.");
@@ -48,7 +48,6 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
           setError("Failed to register. Username or email might be taken.");
         }
       } else {
-        // Login flow - username variable holds either username or email
         const success = await login(username, password);
         if (!success) {
           setError("Invalid credentials");
@@ -64,203 +63,329 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
   return (
     <div
       style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         minHeight: "100vh",
-        padding: "20px",
+        background: "#0d0f13",
+        color: "#e9ecf5",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        overflowX: "hidden",
+        fontFamily: "'Rajdhani', sans-serif"
       }}
     >
-      <div className="card animate-fade-in-up" style={{ width: "100%", maxWidth: "420px", padding: "32px" }}>
-        {onBack && (
-          <div
-            onClick={onBack}
-            className="gradient-hover-text"
-            style={{
-              fontSize: "0.9rem",
-              marginBottom: "16px",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              fontWeight: "600",
+      {/* Top Header Bar */}
+      <header className="login-header">
+        {/* Left Side Links */}
+        <div className="login-header-left">
+          <span
+            onClick={() => {
+              setIsRegistering(false);
+              setUsername("");
+              setEmail("");
+              setPassword("");
+              setConfirmPassword("");
+              setError(null);
+              onBack();
             }}
+            className="login-header-link"
+            style={{ color: "#ffffff" }}
           >
-            ← Back to Home
-          </div>
-        )}
-        <div style={{ textAlign: "center", marginBottom: "24px" }}>
-
-          <h1 style={{ color: "#e9ecf5", margin: "0 0 4px", fontSize: "2rem" }}>GymBro</h1>
-          <p className="muted" style={{ margin: 0 }}>
-            {isRegistering ? "Create your account to start tracking" : "Sign in to your fitness companion"}
-          </p>
+            Home
+          </span>
+          <span
+            onClick={onAboutClick}
+            className="login-header-link"
+            style={{ color: "#a0a5b5" }}
+          >
+            About
+          </span>
+          <span
+            onClick={onContactClick}
+            className="login-header-link"
+            style={{ color: "#a0a5b5" }}
+          >
+            Contact
+          </span>
         </div>
 
-        {error && (
-          <div
+        {/* Right Side Auth Tabs */}
+        <div className="login-header-right">
+          <span
+            onClick={() => {
+              setIsRegistering(false);
+              setError(null);
+              setUsername("");
+              setEmail("");
+              setPassword("");
+              setConfirmPassword("");
+              setShowPassword(false);
+              setShowConfirmPassword(false);
+            }}
+            className="login-header-signin"
             style={{
-              background: "rgba(235, 87, 87, 0.1)",
-              border: "1px solid rgba(235, 87, 87, 0.4)",
-              color: "#eb5757",
-              padding: "12px",
-              borderRadius: "12px",
-              marginBottom: "16px",
-              fontSize: "0.9rem",
-              textAlign: "center",
+              color: !isRegistering ? "#ffffff" : "#7a8190",
+              borderBottom: !isRegistering ? "2px solid #ffffff" : "none"
             }}
           >
-            {error}
-          </div>
-        )}
+            Sign in
+          </span>
+          <button
+            onClick={() => {
+              setIsRegistering(true);
+              setError(null);
+              setUsername("");
+              setEmail("");
+              setPassword("");
+              setConfirmPassword("");
+              setShowPassword(false);
+              setShowConfirmPassword(false);
+            }}
+            className="login-header-signup"
+            style={{
+              background: isRegistering ? "#ffffff" : "transparent",
+              color: isRegistering ? "#0d0f13" : "#ffffff",
+              border: isRegistering ? "none" : "1px solid #ffffff"
+            }}
+          >
+            Sign up
+          </button>
+        </div>
+      </header>
 
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label className="muted" htmlFor="username">
-              {isRegistering ? "Username" : "Username or Email ID"}
-            </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder={isRegistering ? "Enter your username" : "Enter your username or email"}
-              required
-              disabled={isLoading}
-              style={{ fontSize: "1rem" }}
-            />
-          </div>
-
-          {isRegistering && (
-            <div style={{ marginTop: "12px" }}>
-              <label className="muted" htmlFor="email">Email ID</label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your Email ID"
-                required
-                disabled={isLoading}
-                style={{ fontSize: "1rem" }}
-              />
+      {/* Split Pane Container */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "20px 20px 40px",
+          boxSizing: "border-box"
+        }}
+      >
+        <div className="login-card-container">
+          <div className="login-overlay-pane">
+            {/* Top GYMBRO Brand header info */}
+            <div>
+              <h2 style={{ margin: "0 0 4px 0", fontFamily: "'Chakra Petch', sans-serif", letterSpacing: "2px", color: "#ffffff", fontSize: "1.9rem", fontWeight: 800 }}>
+                GYMBRO
+              </h2>
+              <p style={{ margin: 0, color: "#a0a5b5", fontSize: "0.85rem", letterSpacing: "0.5px", fontWeight: 600 }}>
+                Forge your physique, track your evolution.
+              </p>
             </div>
-          )}
 
-          <div style={{ marginTop: "12px" }}>
-            <label className="muted" htmlFor="password">Password</label>
-            <div style={{ position: "relative" }}>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                disabled={isLoading}
-                style={{ fontSize: "1rem", paddingRight: "60px", width: "100%" }}
-              />
-              <span
-                onClick={() => setShowPassword(!showPassword)}
-                className="gradient-hover-text"
+            {/* Login form details */}
+            <div style={{ margin: "auto 0", width: "100%", padding: "24px 0" }}>
+              <h3
                 style={{
-                  position: "absolute",
-                  right: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  fontSize: "0.75rem",
-                  fontWeight: "700",
-                  userSelect: "none",
+                  margin: "0 0 20px 0",
+                  fontSize: "1.75rem",
+                  fontFamily: "'Chakra Petch', sans-serif",
+                  color: "#ffffff",
+                  letterSpacing: "1px",
+                  fontWeight: 700
                 }}
               >
-                {showPassword ? "HIDE" : "SHOW"}
-              </span>
-            </div>
-          </div>
+                {isRegistering ? "Create Account" : "Hello ! Welcome Back"}
+              </h3>
 
-          {isRegistering && (
-            <div style={{ marginTop: "12px" }}>
-              <label className="muted" htmlFor="confirm-password">Confirm Password</label>
-              <div style={{ position: "relative" }}>
-                <input
-                  id="confirm-password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Verify your password"
-                  required
-                  disabled={isLoading}
-                  style={{ fontSize: "1rem", paddingRight: "60px", width: "100%" }}
-                />
-                <span
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="gradient-hover-text"
+              {error && (
+                <div
                   style={{
-                    position: "absolute",
-                    right: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    fontSize: "0.75rem",
-                    fontWeight: "700",
-                    userSelect: "none",
+                    background: "rgba(235, 87, 87, 0.1)",
+                    border: "1px solid rgba(235, 87, 87, 0.3)",
+                    color: "#eb5757",
+                    padding: "12px",
+                    borderRadius: "8px",
+                    marginBottom: "20px",
+                    fontSize: "0.9rem"
                   }}
                 >
-                  {showConfirmPassword ? "HIDE" : "SHOW"}
-                </span>
-              </div>
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {/* Username field */}
+                <div>
+                  <input
+                    type="text"
+                    placeholder={isRegistering ? "Enter Username" : "Enter Username or Email"}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    style={{
+                      width: "100%",
+                      padding: "16px 20px",
+                      background: "rgba(27, 31, 43, 0.8)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderRadius: "12px",
+                      color: "#ffffff",
+                      fontSize: "0.95rem",
+                      fontFamily: "inherit",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+
+                {/* Email field (only in register) */}
+                {isRegistering && (
+                  <div>
+                    <input
+                      type="email"
+                      placeholder="Enter Email Address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        background: "rgba(27, 31, 43, 0.8)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        borderRadius: "12px",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        fontFamily: "inherit",
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Password field */}
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    style={{
+                      width: "100%",
+                      padding: "16px 50px 16px 20px",
+                      background: "rgba(27, 31, 43, 0.8)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderRadius: "12px",
+                      color: "#ffffff",
+                      fontSize: "0.95rem",
+                      fontFamily: "inherit",
+                      outline: "none"
+                    }}
+                  />
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "18px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#7a8190",
+                      fontSize: "0.85rem",
+                      cursor: "pointer",
+                      userSelect: "none",
+                      fontWeight: "600"
+                    }}
+                  >
+                    {showPassword ? "HIDE" : "SHOW"}
+                  </span>
+                </div>
+
+                {/* Confirm Password field (only in register) */}
+                {isRegistering && (
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      style={{
+                        width: "100%",
+                        padding: "16px 50px 16px 20px",
+                        background: "rgba(27, 31, 43, 0.8)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        borderRadius: "12px",
+                        color: "#ffffff",
+                        fontSize: "0.95rem",
+                        fontFamily: "inherit",
+                        outline: "none"
+                      }}
+                    />
+                    <span
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={{
+                        position: "absolute",
+                        right: "18px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#7a8190",
+                        fontSize: "0.85rem",
+                        cursor: "pointer",
+                        userSelect: "none",
+                        fontWeight: "600"
+                      }}
+                    >
+                      {showConfirmPassword ? "HIDE" : "SHOW"}
+                    </span>
+                  </div>
+                )}
+
+                {/* Main Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  style={{
+                    width: "100%",
+                    padding: "16px",
+                    marginTop: "8px",
+                    background: "#ffffff",
+                    color: "#0a0c10",
+                    border: "none",
+                    borderRadius: "12px",
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    cursor: isLoading ? "not-allowed" : "pointer",
+                    transition: "opacity 0.15s",
+                    fontFamily: "'Chakra Petch', sans-serif",
+                    letterSpacing: "0.5px"
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                >
+                  {isLoading ? "Please wait..." : isRegistering ? "Sign Up" : "Sign In"}
+                </button>
+              </form>
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              width: "100%",
-              marginTop: "20px",
-              padding: "12px",
-              fontSize: "1rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              opacity: isLoading ? 0.7 : 1,
-              cursor: isLoading ? "not-allowed" : "pointer",
-            }}
-          >
-            <span className="gradient-text">
-              {isLoading ? "Please wait..." : isRegistering ? "Create Account" : "Sign In"}
-            </span>
-          </button>
-        </form>
-
-        <div style={{ textAlign: "center", marginTop: "24px" }}>
-          <p className="muted" style={{ margin: 0, fontSize: "0.9rem" }}>
-            {isRegistering ? "Already have an account?" : "New to GymBro?"}{" "}
-            <span
-              onClick={() => {
-                if (!isLoading) {
-                  setIsRegistering(!isRegistering);
-                  setError(null);
-                  // Reset form fields on switch
-                  setUsername("");
-                  setEmail("");
-                  setPassword("");
-                  setConfirmPassword("");
-                  setShowPassword(false);
-                  setShowConfirmPassword(false);
-                }
-              }}
-              className="gradient-text"
-              style={{
-                cursor: "pointer",
-                fontWeight: "600",
-                textDecoration: "underline",
-              }}
-            >
-              {isRegistering ? "Sign In" : "Register Now"}
-            </span>
-          </p>
+            {/* Bottom Toggle Text */}
+            <div style={{ textAlign: "center", marginTop: "auto" }}>
+              <p style={{ margin: 0, color: "#7a8190", fontSize: "0.9rem" }}>
+                {isRegistering ? "Already have an account ?" : "Don't have an account ?"}{" "}
+                <span
+                  onClick={() => {
+                    setIsRegistering(!isRegistering);
+                    setError(null);
+                    setUsername("");
+                    setEmail("");
+                    setPassword("");
+                    setConfirmPassword("");
+                    setShowPassword(false);
+                    setShowConfirmPassword(false);
+                  }}
+                  style={{ color: "#ffffff", cursor: "pointer", fontWeight: "700", textDecoration: "underline" }}
+                >
+                  {isRegistering ? "Sign In" : "Sign Up!"}
+                </span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-

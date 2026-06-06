@@ -125,7 +125,7 @@ export const NutritionTracker: React.FC = () => {
   return (
     <div className="card scrollable-card">
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-        <img src="/nutrition.png" alt="" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+        <img src="/assets/nutrition.png" alt="" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
         <h2 style={{ margin: 0 }}>Protein & Calories</h2>
       </div>
       <div className="nutrition-columns-grid">

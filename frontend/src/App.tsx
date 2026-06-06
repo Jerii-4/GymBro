@@ -9,13 +9,41 @@ import { useLocalStore, usePersistedEffect } from "./hooks/useLocalStore";
 import { Session } from "./types";
 import Orb from "./components/Orb";
 import { ContactModal } from "./components/ContactModal";
+import { ProfilePanel } from "./components/ProfilePanel";
+import { AboutModal } from "./components/AboutModal";
 
 
 const App: React.FC = () => {
   const { token, username, logout, sessions, measurements, addMeasurement } = useLocalStore();
   const [view, setView] = useState<"landing" | "login" | "dashboard">("landing");
-  const [activeTab, setActiveTab] = useState<"workouts" | "attendance" | "gains" | "diet">("workouts");
+  const [activeTab, setActiveTab] = useState<"workouts" | "attendance" | "gains" | "diet" | "profile">("workouts");
   const [showContact, setShowContact] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [pfp, setPfp] = useState<string>("/assets/profile.png");
+
+  useEffect(() => {
+    if (username) {
+      setPfp(localStorage.getItem(`gymbro_pfp_${username}`) || "/assets/profile.png");
+    } else {
+      setPfp("/assets/profile.png");
+    }
+  }, [username, activeTab]);
+
+  const handlePfpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        localStorage.setItem(`gymbro_pfp_${username}`, base64String);
+        setPfp(base64String);
+        // Dispatch storage event to keep other panels synced
+        window.dispatchEvent(new Event("storage"));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   usePersistedEffect();
 
@@ -63,24 +91,10 @@ const App: React.FC = () => {
         </div>
 
         {/* Header Bar */}
-        <header
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "20px 32px",
-            maxWidth: "1100px",
-            margin: "0 auto",
-            zIndex: 10,
-          }}
-        >
+        <header className="landing-header">
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <img
-              src="/logo.png"
+              src="/assets/logo.png"
               alt="GymBro Logo"
               style={{
                 width: "32px",
@@ -126,7 +140,28 @@ const App: React.FC = () => {
                 e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
               }}
             >
-              <span className="gradient-text">{token ? "Dashboard" : "Login"}</span>
+              <span className="gradient-text">{token ? "Dashboard" : "Login / Signup"}</span>
+            </button>
+
+            <button
+              onClick={() => setShowAbout(true)}
+              style={{
+                border: "1px solid rgba(0, 242, 254, 0.3)",
+                padding: "6px 16px",
+                borderRadius: "10px",
+                fontSize: "0.85rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(161, 140, 209, 0.8)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
+              }}
+            >
+              <span className="gradient-text">About</span>
             </button>
 
             <button
@@ -153,24 +188,7 @@ const App: React.FC = () => {
         </header>
 
         {/* Content Wrapper */}
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-            maxHeight: "100vh",
-            padding: "80px 24px 24px",
-            maxWidth: "1000px",
-            margin: "0 auto",
-            textAlign: "center",
-            pointerEvents: "none",
-            boxSizing: "border-box",
-          }}
-        >
+        <div className="landing-content-wrapper">
           {/* Badge */}
           <div className="landing-badge" style={{ pointerEvents: "auto" }}>
             Your Personal Fitness Companion
@@ -226,141 +244,173 @@ const App: React.FC = () => {
           </div>
 
           {/* Feature Grid */}
-          <div
-            className="grid"
-            style={{
-              marginTop: "32px",
-              width: "100%",
-              gap: "16px",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              pointerEvents: "auto",
-            }}
-          >
+          <div className="landing-feature-grid">
             <div className="glass-card" style={{ textAlign: "left" }}>
               <div style={{ display: "flex", gap: "10px", marginBottom: "12px", height: "40px", alignItems: "center" }}>
-                <img src="/exercise.png" alt="Workouts" style={{ height: "36px", width: "auto" }} />
-                <img src="/attendance.png" alt="Attendance" style={{ height: "36px", width: "auto" }} />
+                <img src="/assets/exercise.png" alt="Workouts" style={{ height: "36px", width: "auto" }} />
+                <img src="/assets/attendance.png" alt="Attendance" style={{ height: "36px", width: "auto" }} />
               </div>
-              <h3 className="gradient-text">
+              <h3 className="gradient-text" style={{ margin: 0, fontSize: "1.1rem" }}>
                 Workout & Attendance
               </h3>
-              <p className="muted" style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.5 }}>
-                Log exercises, sets, reps, and rest intervals while monitoring your consistency, attendance trends, and training streaks.
-              </p>
             </div>
 
             <div className="glass-card" style={{ textAlign: "left" }}>
               <div style={{ display: "flex", marginBottom: "12px", height: "40px", alignItems: "center" }}>
-                <img src="/gain.png" alt="Gains" style={{ height: "36px", width: "auto" }} />
+                <img src="/assets/gain.png" alt="Gains" style={{ height: "36px", width: "auto" }} />
               </div>
-              <h3 className="gradient-text">
+              <h3 className="gradient-text" style={{ margin: 0, fontSize: "1.1rem" }}>
                 Gains Progress
               </h3>
-              <p className="muted" style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.5 }}>
-                Track weight, body fat %, and tape measurements. Visualise your physical progression over time.
-              </p>
             </div>
 
             <div className="glass-card" style={{ textAlign: "left" }}>
               <div style={{ display: "flex", marginBottom: "12px", height: "40px", alignItems: "center" }}>
-                <img src="/nutrition.png" alt="Diet" style={{ height: "36px", width: "auto" }} />
+                <img src="/assets/nutrition.png" alt="Diet" style={{ height: "36px", width: "auto" }} />
               </div>
-              <h3 className="gradient-text">
+              <h3 className="gradient-text" style={{ margin: 0, fontSize: "1.1rem" }}>
                 Smart Diet
               </h3>
-              <p className="muted" style={{ margin: 0, fontSize: "0.88rem", lineHeight: 1.5 }}>
-                Manage target protein and calorie intake customized for bulking, cutting, or maintenance.
-              </p>
             </div>
           </div>
         </div>
         <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
+        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
       </div>
     );
   }
 
-  // 2. Show Login View
+  // 1. Show Login View (Unauthenticated)
   if (view === "login") {
-    return <Login onBack={() => setView("landing")} />;
+    return (
+      <>
+        <Login
+          onBack={() => setView("landing")}
+          onAboutClick={() => setShowAbout(true)}
+          onContactClick={() => setShowContact(true)}
+        />
+        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
+      </>
+    );
   }
 
   // 3. Show Dashboard View (Authenticated)
   return (
     <div className="dashboard-wrapper">
       <div className="app-shell animate-fade-in-up">
-      {/* Header bar with user welcome message and Log Out button */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
-          borderBottom: "1px solid #1f2430",
-          paddingBottom: "16px",
-          marginBottom: "16px",
-        }}
-      >
-        <div>
-          <h1 style={{ color: "#e9ecf5", margin: 0 }}>GymBro</h1>
-          <p className="muted" style={{ margin: "4px 0 0" }}>
-            Welcome back, <strong className="gradient-text">{username}</strong>!
-          </p>
+      {/* Header bar with profile section and Log Out button */}
+      {/* Header bar with profile section and Log Out button */}
+      <div className="dashboard-header">
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          {/* Avatar Upload / Profile Section */}
+          <label
+            style={{
+              position: "relative",
+              width: "52px",
+              height: "52px",
+              borderRadius: "50%",
+              border: "2px solid #3a4256",
+              cursor: "pointer",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "#0d0f13",
+              transition: "border-color 0.2s"
+            }}
+            title="Click to change profile picture"
+            onMouseEnter={(e) => e.currentTarget.style.borderColor = "#a18cd1"}
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = "#3a4256"}
+          >
+            <img src={pfp} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <input type="file" accept="image/*" onChange={handlePfpChange} style={{ display: "none" }} />
+          </label>
+          <div>
+            <h1 style={{ color: "#e9ecf5", margin: 0, fontSize: "1.4rem", fontFamily: "'Chakra Petch', sans-serif", lineHeight: 1.1 }}>GymBro</h1>
+            <p className="muted" style={{ margin: "4px 0 0", fontSize: "0.85rem" }}>
+              Welcome back, <strong style={{ color: "#ffffff" }}>{username}</strong>!
+            </p>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className="dashboard-header-buttons" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <button
             onClick={() => setView("landing")}
             style={{
-              border: "1px solid rgba(0, 242, 254, 0.3)",
+              border: "1px solid #3a4256",
               padding: "8px 16px",
               fontSize: "0.9rem",
               cursor: "pointer",
               transition: "all 0.2s ease",
+              color: "#ffffff"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(161, 140, 209, 0.8)";
+              e.currentTarget.style.borderColor = "#4f5b75";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
+              e.currentTarget.style.borderColor = "#3a4256";
             }}
           >
-            <span className="gradient-text">Home</span>
+            <span>Home</span>
           </button>
           
           <button
-            onClick={() => setShowContact(true)}
+            onClick={() => setShowAbout(true)}
             style={{
-              border: "1px solid rgba(0, 242, 254, 0.3)",
+              border: "1px solid #3a4256",
               padding: "8px 16px",
               fontSize: "0.9rem",
               cursor: "pointer",
               transition: "all 0.2s ease",
+              color: "#ffffff"
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(161, 140, 209, 0.8)";
+              e.currentTarget.style.borderColor = "#4f5b75";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(0, 242, 254, 0.3)";
+              e.currentTarget.style.borderColor = "#3a4256";
             }}
           >
-            <span className="gradient-text">Contact</span>
+            <span>About</span>
+          </button>
+
+          <button
+            onClick={() => setShowContact(true)}
+            style={{
+              border: "1px solid #3a4256",
+              padding: "8px 16px",
+              fontSize: "0.9rem",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              color: "#ffffff"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "#4f5b75";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#3a4256";
+            }}
+          >
+            <span>Contact</span>
           </button>
           <button
             onClick={handleLogout}
             style={{
               background: "transparent",
-              color: "#a18cd1",
-              border: "1px solid #a18cd1",
+              color: "#7a8190",
+              border: "1px solid #3a4256",
               padding: "8px 16px",
               fontSize: "0.9rem",
               boxShadow: "none",
               transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(161, 140, 209, 0.1)";
+              e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+              e.currentTarget.style.borderColor = "#4f5b75";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.borderColor = "#3a4256";
             }}
           >
             Log Out
@@ -370,13 +420,16 @@ const App: React.FC = () => {
 
       {/* Navigation Tabs */}
       <div
+        className="no-scrollbar desktop-tab-container"
         style={{
           display: "flex",
           gap: "10px",
           margin: "20px 0 24px",
           borderBottom: "1px solid #161b26",
           paddingBottom: "12px",
-          flexWrap: "wrap",
+          flexWrap: "nowrap",
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         <span
@@ -387,12 +440,9 @@ const App: React.FC = () => {
             borderRadius: "10px",
             fontWeight: "700",
             fontSize: "0.95rem",
-            background: activeTab === "workouts" ? "linear-gradient(to right, #00f2fe, #a18cd1)" : "transparent",
-            WebkitBackgroundClip: activeTab === "workouts" ? "text" : "unset",
-            backgroundClip: activeTab === "workouts" ? "text" : "unset",
-            WebkitTextFillColor: activeTab === "workouts" ? "transparent" : "unset",
-            color: activeTab === "workouts" ? "transparent" : "#7a8190",
-            border: activeTab === "workouts" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
+            background: activeTab === "workouts" ? "#1f2430" : "transparent",
+            color: activeTab === "workouts" ? "#ffffff" : "#7a8190",
+            border: activeTab === "workouts" ? "1px solid #3a4256" : "1px solid transparent",
             transition: "all 0.15s ease",
             display: "inline-flex",
             alignItems: "center",
@@ -400,7 +450,7 @@ const App: React.FC = () => {
           }}
         >
           <img
-            src="/exercise.png"
+            src="/assets/exercise.png"
             alt=""
             style={{
               width: "18px",
@@ -419,12 +469,9 @@ const App: React.FC = () => {
             borderRadius: "10px",
             fontWeight: "700",
             fontSize: "0.95rem",
-            background: activeTab === "gains" ? "linear-gradient(to right, #00f2fe, #a18cd1)" : "transparent",
-            WebkitBackgroundClip: activeTab === "gains" ? "text" : "unset",
-            backgroundClip: activeTab === "gains" ? "text" : "unset",
-            WebkitTextFillColor: activeTab === "gains" ? "transparent" : "unset",
-            color: activeTab === "gains" ? "transparent" : "#7a8190",
-            border: activeTab === "gains" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
+            background: activeTab === "gains" ? "#1f2430" : "transparent",
+            color: activeTab === "gains" ? "#ffffff" : "#7a8190",
+            border: activeTab === "gains" ? "1px solid #3a4256" : "1px solid transparent",
             transition: "all 0.15s ease",
             display: "inline-flex",
             alignItems: "center",
@@ -432,7 +479,7 @@ const App: React.FC = () => {
           }}
         >
           <img
-            src="/gain.png"
+            src="/assets/gain.png"
             alt=""
             style={{
               width: "18px",
@@ -451,12 +498,9 @@ const App: React.FC = () => {
             borderRadius: "10px",
             fontWeight: "700",
             fontSize: "0.95rem",
-            background: activeTab === "diet" ? "linear-gradient(to right, #00f2fe, #a18cd1)" : "transparent",
-            WebkitBackgroundClip: activeTab === "diet" ? "text" : "unset",
-            backgroundClip: activeTab === "diet" ? "text" : "unset",
-            WebkitTextFillColor: activeTab === "diet" ? "transparent" : "unset",
-            color: activeTab === "diet" ? "transparent" : "#7a8190",
-            border: activeTab === "diet" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
+            background: activeTab === "diet" ? "#1f2430" : "transparent",
+            color: activeTab === "diet" ? "#ffffff" : "#7a8190",
+            border: activeTab === "diet" ? "1px solid #3a4256" : "1px solid transparent",
             transition: "all 0.15s ease",
             display: "inline-flex",
             alignItems: "center",
@@ -464,7 +508,7 @@ const App: React.FC = () => {
           }}
         >
           <img
-            src="/nutrition.png"
+            src="/assets/nutrition.png"
             alt=""
             style={{
               width: "18px",
@@ -483,12 +527,9 @@ const App: React.FC = () => {
             borderRadius: "10px",
             fontWeight: "700",
             fontSize: "0.95rem",
-            background: activeTab === "attendance" ? "linear-gradient(to right, #00f2fe, #a18cd1)" : "transparent",
-            WebkitBackgroundClip: activeTab === "attendance" ? "text" : "unset",
-            backgroundClip: activeTab === "attendance" ? "text" : "unset",
-            WebkitTextFillColor: activeTab === "attendance" ? "transparent" : "unset",
-            color: activeTab === "attendance" ? "transparent" : "#7a8190",
-            border: activeTab === "attendance" ? "1px solid rgba(0, 242, 254, 0.3)" : "1px solid transparent",
+            background: activeTab === "attendance" ? "#1f2430" : "transparent",
+            color: activeTab === "attendance" ? "#ffffff" : "#7a8190",
+            border: activeTab === "attendance" ? "1px solid #3a4256" : "1px solid transparent",
             transition: "all 0.15s ease",
             display: "inline-flex",
             alignItems: "center",
@@ -496,7 +537,7 @@ const App: React.FC = () => {
           }}
         >
           <img
-            src="/attendance.png"
+            src="/assets/attendance.png"
             alt=""
             style={{
               width: "18px",
@@ -507,6 +548,165 @@ const App: React.FC = () => {
           />
           Attendance
         </span>
+        <span
+          onClick={() => setActiveTab("profile")}
+          style={{
+            cursor: "pointer",
+            padding: "8px 16px",
+            borderRadius: "10px",
+            fontWeight: "700",
+            fontSize: "0.95rem",
+            background: activeTab === "profile" ? "#1f2430" : "transparent",
+            color: activeTab === "profile" ? "#ffffff" : "#7a8190",
+            border: activeTab === "profile" ? "1px solid #3a4256" : "1px solid transparent",
+            transition: "all 0.15s ease",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <img
+            src={pfp}
+            alt=""
+            style={{
+              width: "18px",
+              height: "18px",
+              borderRadius: pfp !== "/assets/profile.png" ? "50%" : "0",
+              objectFit: "cover",
+              filter: activeTab === "profile" ? "none" : "grayscale(1) opacity(0.6)"
+            }}
+          />
+          Profile
+        </span>
+      </div>
+
+      {/* Mobile Tab Selection Dropdown */}
+      <div className="mobile-tab-dropdown-container" style={{ position: "relative", zIndex: 50 }}>
+        <label style={{ display: "block", fontSize: "0.8rem", color: "#7a8190", marginBottom: "8px", fontWeight: 700, letterSpacing: "1px" }}>SELECT SECTION</label>
+        
+        {/* Dropdown Header */}
+        <div 
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            padding: "12px 16px",
+            background: "#12151e",
+            border: "1px solid #1f2430",
+            borderRadius: "10px",
+            color: "#ffffff",
+            fontSize: "1rem",
+            fontWeight: 700,
+            fontFamily: "'Chakra Petch', sans-serif",
+            cursor: "pointer",
+            boxSizing: "border-box"
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <img 
+              src={
+                activeTab === "workouts" ? "/assets/exercise.png" :
+                activeTab === "gains" ? "/assets/gain.png" :
+                activeTab === "diet" ? "/assets/nutrition.png" :
+                activeTab === "attendance" ? "/assets/attendance.png" :
+                pfp
+              } 
+              alt="" 
+              style={{ 
+                width: "20px", 
+                height: "20px", 
+                objectFit: "contain",
+                borderRadius: activeTab === "profile" && pfp !== "/assets/profile.png" ? "50%" : "0"
+              }} 
+            />
+            {
+              activeTab === "workouts" ? "Workouts" :
+              activeTab === "gains" ? "Gains" :
+              activeTab === "diet" ? "Nutrition" :
+              activeTab === "attendance" ? "Attendance" :
+              "Profile"
+            }
+          </div>
+          <div style={{ color: "#7a8190", fontSize: "0.8rem", transform: dropdownOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s ease" }}>
+            ▼
+          </div>
+        </div>
+
+        {/* Dropdown List */}
+        {dropdownOpen && (
+          <>
+            <div 
+              onClick={() => setDropdownOpen(false)}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 99,
+                background: "transparent"
+              }}
+            />
+            <div 
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                marginTop: "6px",
+                background: "#12151e",
+                border: "1px solid #1f2430",
+                borderRadius: "10px",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+                zIndex: 100,
+                overflow: "hidden"
+              }}
+            >
+              {[
+                { id: "workouts", label: "Workouts", icon: "/assets/exercise.png" },
+                { id: "gains", label: "Gains", icon: "/assets/gain.png" },
+                { id: "diet", label: "Nutrition", icon: "/assets/nutrition.png" },
+                { id: "attendance", label: "Attendance", icon: "/assets/attendance.png" },
+                { id: "profile", label: "Profile", icon: pfp, isProfile: true }
+              ].map(sec => (
+                <div
+                  key={sec.id}
+                  onClick={() => {
+                    setActiveTab(sec.id as any);
+                    setDropdownOpen(false);
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    padding: "12px 16px",
+                    color: activeTab === sec.id ? "#ffffff" : "#a0a5b5",
+                    background: activeTab === sec.id ? "#1f2430" : "transparent",
+                    cursor: "pointer",
+                    fontSize: "0.95rem",
+                    fontWeight: activeTab === sec.id ? "700" : "600",
+                    borderBottom: "1px solid rgba(255,255,255,0.02)",
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  <img 
+                    src={sec.icon} 
+                    alt="" 
+                    style={{ 
+                      width: "18px", 
+                      height: "18px", 
+                      objectFit: "contain",
+                      borderRadius: sec.isProfile && pfp !== "/assets/profile.png" ? "50%" : "0"
+                    }} 
+                  />
+                  {sec.label}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Tab Contents */}
@@ -534,8 +734,15 @@ const App: React.FC = () => {
           <NutritionTracker />
         </div>
       )}
+
+      {activeTab === "profile" && (
+        <div key="profile" className="animate-tab-enter" style={{ maxWidth: "1000px", margin: "0 auto" }}>
+          <ProfilePanel />
+        </div>
+      )}
       </div>
       <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
+      <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
     </div>
   );
 };

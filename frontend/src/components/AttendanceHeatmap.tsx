@@ -174,7 +174,7 @@ export const AttendanceHeatmap: React.FC<Props> = ({ sessions }) => {
     <div style={{ maxWidth: "420px", margin: "0 auto", paddingBottom: "40px" }}>
       <div style={{ textAlign: "center", marginBottom: "24px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "8px" }}>
-          <img src="/attendance.png" alt="" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
+          <img src="/assets/attendance.png" alt="" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
           <h2 style={{ color: "#e9ecf5", margin: 0, fontSize: "1.8rem" }}>Attendance Tracker</h2>
         </div>
         

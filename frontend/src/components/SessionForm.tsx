@@ -278,7 +278,7 @@ export const SessionForm: React.FC<Props> = ({ onCreated }) => {
   return (
     <div className="card scrollable-card">
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-        <img src="/exercise.png" alt="" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+        <img src="/assets/exercise.png" alt="" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
         <h2 style={{ margin: 0 }}>New Session</h2>
       </div>
 
