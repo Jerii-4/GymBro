@@ -194,53 +194,56 @@ const App: React.FC = () => {
             Your Personal Fitness Companion
           </div>
 
-          {/* Hero Title */}
-          <h1
-            style={{
-              fontSize: "2.8rem",
-              fontWeight: 800,
-              color: "#e9ecf5",
-              margin: "0 0 10px",
-              lineHeight: 1.15,
-              letterSpacing: "-1px",
-              maxWidth: "20ch",
-              pointerEvents: "auto",
-            }}
-          >
-            Forge Your Physique with{" "}
-            <span className="gradient-text">
-              GymBro
-            </span>
-          </h1>
-
-          {/* Tagline */}
-          <p
-            className="muted"
-            style={{
-              fontSize: "1.05rem",
-              maxWidth: "600px",
-              margin: "0 0 20px",
-              lineHeight: 1.5,
-              pointerEvents: "auto",
-            }}
-          >
-            Track your workouts, record your stats, and monitor your nutrition in one seamless experience.
-          </p>
-
-          {/* Call to Action Button */}
-          <div style={{ pointerEvents: "auto" }}>
-            <button
-              onClick={() => {
-                if (token) {
-                  setView("dashboard");
-                } else {
-                  setView("login");
-                }
+          {/* Hero Group — heading + tagline + CTA together */}
+          <div className="landing-hero-group">
+            {/* Hero Title */}
+            <h1
+              style={{
+                fontSize: "2.8rem",
+                fontWeight: 800,
+                color: "#e9ecf5",
+                margin: "0 0 10px",
+                lineHeight: 1.15,
+                letterSpacing: "-1px",
+                maxWidth: "20ch",
+                pointerEvents: "auto",
               }}
-              className="cta-button"
             >
-              {token ? "Go to Dashboard →" : "Start Working Out →"}
-            </button>
+              Forge Your Physique with{" "}
+              <span className="gradient-text">
+                GymBro
+              </span>
+            </h1>
+
+            {/* Tagline */}
+            <p
+              className="muted"
+              style={{
+                fontSize: "1.05rem",
+                maxWidth: "600px",
+                margin: "0 0 20px",
+                lineHeight: 1.5,
+                pointerEvents: "auto",
+              }}
+            >
+              Track your workouts, record your stats, and monitor your nutrition in one seamless experience.
+            </p>
+
+            {/* Call to Action Button */}
+            <div style={{ pointerEvents: "auto" }}>
+              <button
+                onClick={() => {
+                  if (token) {
+                    setView("dashboard");
+                  } else {
+                    setView("login");
+                  }
+                }}
+                className="cta-button"
+              >
+                {token ? "Go to Dashboard →" : "Start Working Out →"}
+              </button>
+            </div>
           </div>
 
           {/* Feature Grid */}
@@ -253,6 +256,7 @@ const App: React.FC = () => {
               <h3 className="gradient-text" style={{ margin: 0, fontSize: "1.1rem" }}>
                 Workout & Attendance
               </h3>
+              <p className="glass-card-tagline">Log every set, track your gym attendance, and build consistency.</p>
             </div>
 
             <div className="glass-card" style={{ textAlign: "left" }}>
@@ -262,6 +266,7 @@ const App: React.FC = () => {
               <h3 className="gradient-text" style={{ margin: 0, fontSize: "1.1rem" }}>
                 Gains Progress
               </h3>
+              <p className="glass-card-tagline">Visualize strength gains and body measurements over time.</p>
             </div>
 
             <div className="glass-card" style={{ textAlign: "left" }}>
@@ -271,6 +276,7 @@ const App: React.FC = () => {
               <h3 className="gradient-text" style={{ margin: 0, fontSize: "1.1rem" }}>
                 Smart Diet
               </h3>
+              <p className="glass-card-tagline">Monitor macros, calories, and stay on top of your nutrition goals.</p>
             </div>
           </div>
         </div>
