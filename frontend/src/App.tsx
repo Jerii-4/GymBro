@@ -280,8 +280,8 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={view === "dashboard"} />
-        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={view === "dashboard"} />
+        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={false} />
+        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={false} />
       </div>
     );
   }
@@ -295,8 +295,8 @@ const App: React.FC = () => {
           onAboutClick={() => setShowAbout(true)}
           onContactClick={() => setShowContact(true)}
         />
-        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={view === "dashboard"} />
-        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={view === "dashboard"} />
+        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={false} />
+        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={false} />
       </>
     );
   }
