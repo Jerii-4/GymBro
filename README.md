@@ -23,9 +23,7 @@
 | 📈 **Gains Tracker** | Track body measurements (weight, biceps, chest, waist, etc.) over time |
 | 🥗 **Nutrition Tracker** | Log food entries with macros and calories, set protein/calorie goals |
 | 👤 **Profile Panel** | View account info, weight unit preferences, and goal history |
-| 🔐 **Auth System** | Secure JWT-based login and registration |
-| 🌐 **WebGL Landing Page** | Animated 3D orb powered by OGL on the landing page |
-| 📱 **Responsive Design** | Works on desktop and mobile with a custom dropdown tab system |
+
 
 ---
 
