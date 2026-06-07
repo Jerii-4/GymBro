@@ -6,7 +6,7 @@
 
 **Your Personal Fitness Companion**
 
-### 🚀 GymBro is Live at https://gym-bro-blue.vercel.app/
+### GymBro is Live at https://gym-bro-blue.vercel.app/
 
 *Track your workouts, record your stats, and monitor your nutrition in one seamless experience.*
 
