@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { create } from "zustand";
 import { FoodEntry, Measurement, NutritionPhase, Session, NutritionGoals, NutritionGoalHistory } from "../types";
 
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
 type Store = {
   token: string | null;
