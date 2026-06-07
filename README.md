@@ -7,8 +7,6 @@
 **Your Personal Fitness Companion**
 
 [![Live App](https://img.shields.io/badge/Live%20App-gym--bro--blue.vercel.app-00f2fe?style=for-the-badge&logo=vercel)](https://gym-bro-blue.vercel.app/)
-[![Backend](https://img.shields.io/badge/Backend-Render-a18cd1?style=for-the-badge&logo=render)](https://gymbro-backend-y8f6.onrender.com)
-[![Database](https://img.shields.io/badge/Database-Supabase-3ecf8e?style=for-the-badge&logo=supabase)](https://supabase.com)
 
 *Track your workouts, record your stats, and monitor your nutrition in one seamless experience.*
 
