@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { AttendanceHeatmap } from "./components/AttendanceHeatmap";
 import { SessionForm } from "./components/SessionForm";
 import { SessionHistory } from "./components/SessionHistory";
@@ -752,6 +753,7 @@ const App: React.FC = () => {
       </div>
       <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={view === "dashboard"} />
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={view === "dashboard"} />
+      <Analytics />
     </div>
   );
 };
