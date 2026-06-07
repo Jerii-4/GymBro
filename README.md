@@ -6,7 +6,7 @@
 
 **Your Personal Fitness Companion**
 
-### 🚀 [GymBro is Live! Click here to use the app](https://gym-bro-blue.vercel.app/)
+### 🚀 GymBro is Live at https://gym-bro-blue.vercel.app/
 
 *Track your workouts, record your stats, and monitor your nutrition in one seamless experience.*
 
@@ -19,7 +19,7 @@
 | Feature | Description |
 |---|---|
 | 🏋️ **Workout Logger** | Log exercises, sets, reps, weight, and rest times per session |
-| 📅 **Attendance Heatmap** | GitHub-style heatmap to visualise your gym consistency |
+| 📅 **Attendance Heatmap** | Heatmap to visualise your gym consistency |
 | 📈 **Gains Tracker** | Track body measurements (weight, biceps, chest, waist, etc.) over time |
 | 🥗 **Nutrition Tracker** | Log food entries with macros and calories, set protein/calorie goals |
 | 👤 **Profile Panel** | View account info, weight unit preferences, and goal history |
