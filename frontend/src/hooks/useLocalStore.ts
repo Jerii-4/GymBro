@@ -1,14 +1,8 @@
 import { useEffect } from "react";
 import { create } from "zustand";
-import { FoodEntry, Measurement, NutritionPhase, Session } from "../types";
+import { FoodEntry, Measurement, NutritionPhase, Session, NutritionGoals, NutritionGoalHistory } from "../types";
 
 const API_BASE = "http://localhost:3000/api";
-
-type NutritionGoals = {
-  proteinTarget: number;
-  calorieTarget: number;
-  phase: NutritionPhase;
-};
 
 type Store = {
   token: string | null;
@@ -17,6 +11,7 @@ type Store = {
   measurements: Measurement[];
   foods: FoodEntry[];
   goals?: NutritionGoals;
+  goalHistory: NutritionGoalHistory[];
   userCreatedAt: string | null;
   isLoading: boolean;
   weightUnit: "kg" | "lbs";
@@ -32,6 +27,8 @@ type Store = {
   markSession: (session: Session) => Promise<void>;
   addMeasurement: (measurement: Measurement) => Promise<void>;
   upsertGoals: (goals: NutritionGoals) => Promise<void>;
+  deleteGoals: () => Promise<void>;
+  deleteGoalHistory: (id: number) => Promise<void>;
   addFood: (entry: FoodEntry) => Promise<void>;
   removeFood: (id: string) => Promise<void>;
 };
@@ -50,6 +47,7 @@ export const useLocalStore = create<Store>((set, get) => ({
   measurements: [],
   foods: [],
   goals: undefined,
+  goalHistory: [],
   isLoading: false,
   weightUnit: savedWeightUnit || "kg",
 
@@ -134,11 +132,12 @@ export const useLocalStore = create<Store>((set, get) => ({
     set({ isLoading: true });
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const [sessionsRes, measurementsRes, foodsRes, goalsRes, meRes] = await Promise.all([
+      const [sessionsRes, measurementsRes, foodsRes, goalsRes, historyRes, meRes] = await Promise.all([
         fetch(`${API_BASE}/sessions`, { headers }),
         fetch(`${API_BASE}/measurements`, { headers }),
         fetch(`${API_BASE}/foods`, { headers }),
         fetch(`${API_BASE}/foods/goals`, { headers }),
+        fetch(`${API_BASE}/foods/goals/history`, { headers }),
         fetch(`${API_BASE}/auth/me`, { headers }),
       ]);
 
@@ -156,6 +155,7 @@ export const useLocalStore = create<Store>((set, get) => ({
       const measurements = measurementsRes.ok ? await measurementsRes.json() : [];
       const foods = foodsRes.ok ? await foodsRes.json() : [];
       const goals = goalsRes.ok ? await goalsRes.json() : null;
+      const goalHistory = historyRes.ok ? await historyRes.json() : [];
       const me = meRes.ok ? await meRes.json() : null;
 
       if (me && me.createdAt) {
@@ -167,6 +167,7 @@ export const useLocalStore = create<Store>((set, get) => ({
         measurements,
         foods,
         goals: goals || undefined,
+        goalHistory,
         userCreatedAt: me?.createdAt || get().userCreatedAt,
         isLoading: false,
       });
@@ -258,6 +259,53 @@ export const useLocalStore = create<Store>((set, get) => ({
       }
     } catch (err) {
       console.error("Failed to save goals:", err);
+    }
+  },
+
+  // Delete current nutrition goals
+  deleteGoals: async () => {
+    const token = get().token;
+    if (!token) return;
+
+    set({ goals: undefined });
+    try {
+      const res = await fetch(`${API_BASE}/foods/goals`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        get().logout();
+      } else if (res.ok) {
+        const historyRes = await fetch(`${API_BASE}/foods/goals/history`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (historyRes.ok) {
+          set({ goalHistory: await historyRes.json() });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete goals:", err);
+    }
+  },
+
+  // Delete historical goal
+  deleteGoalHistory: async (id) => {
+    const token = get().token;
+    if (!token) return;
+
+    set((state) => ({ goalHistory: state.goalHistory.filter((h) => h.id !== id) }));
+    try {
+      const res = await fetch(`${API_BASE}/foods/goals/history/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        get().logout();
+      }
+    } catch (err) {
+      console.error("Failed to delete goal history:", err);
     }
   },
 

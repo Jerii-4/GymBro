@@ -271,7 +271,7 @@ const App: React.FC = () => {
 
             <div className="glass-card" style={{ textAlign: "left" }}>
               <div style={{ display: "flex", marginBottom: "12px", height: "40px", alignItems: "center" }}>
-                <img src="/assets/nutrition.png" alt="Diet" style={{ height: "36px", width: "auto" }} />
+                <img src="/assets/nutrition.png" alt="Diet" style={{ height: "36px", width: "auto", filter: "grayscale(100%)" }} />
               </div>
               <h3 className="gradient-text" style={{ margin: 0, fontSize: "1.1rem" }}>
                 Smart Diet
@@ -280,8 +280,8 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
-        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={view === "dashboard"} />
+        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={view === "dashboard"} />
       </div>
     );
   }
@@ -295,8 +295,8 @@ const App: React.FC = () => {
           onAboutClick={() => setShowAbout(true)}
           onContactClick={() => setShowContact(true)}
         />
-        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
-        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
+        <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={view === "dashboard"} />
+        <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={view === "dashboard"} />
       </>
     );
   }
@@ -431,8 +431,11 @@ const App: React.FC = () => {
           display: "flex",
           gap: "10px",
           margin: "20px 0 24px",
-          borderBottom: "1px solid #161b26",
-          paddingBottom: "12px",
+          padding: "8px 12px",
+          background: "rgba(16, 19, 26, 0.8)",
+          backdropFilter: "blur(10px)",
+          borderRadius: "16px",
+          border: "1px solid rgba(255, 255, 255, 0.05)",
           flexWrap: "nowrap",
           overflowX: "auto",
           WebkitOverflowScrolling: "touch",
@@ -747,8 +750,8 @@ const App: React.FC = () => {
         </div>
       )}
       </div>
-      <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} />
-      <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+      <ContactModal isOpen={showContact} onClose={() => setShowContact(false)} isDashboard={view === "dashboard"} />
+      <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} isDashboard={view === "dashboard"} />
     </div>
   );
 };

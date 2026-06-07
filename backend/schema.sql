@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS food_entries (
     protein NUMERIC(5, 2) NOT NULL,
     calories NUMERIC(6, 2) NOT NULL,
     source VARCHAR(50) NOT NULL,
-    logged_at DATE DEFAULT CURRENT_DATE NOT NULL
+    logged_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- 7. Nutrition Goals Table
@@ -73,6 +73,24 @@ CREATE TABLE IF NOT EXISTS nutrition_goals (
     user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     protein_target INTEGER NOT NULL,
     calorie_target INTEGER NOT NULL,
-    phase VARCHAR(50) NOT NULL
+    phase VARCHAR(50) NOT NULL,
+    current_weight NUMERIC(5, 2),
+    target_weight NUMERIC(5, 2),
+    months INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 8. Nutrition Goals History Table
+CREATE TABLE IF NOT EXISTS nutrition_goals_history (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    protein_target INTEGER NOT NULL,
+    calorie_target INTEGER NOT NULL,
+    phase VARCHAR(50) NOT NULL,
+    current_weight NUMERIC(5, 2),
+    target_weight NUMERIC(5, 2),
+    months INTEGER,
+    started_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    ended_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

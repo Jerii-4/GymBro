@@ -43,6 +43,23 @@ export type FoodEntry = {
   protein: number;
   calories: number;
   source?: "manual" | "openfoodfacts" | "wger";
+  loggedAt?: string;
+};
+
+export type NutritionGoals = {
+  proteinTarget: number;
+  calorieTarget: number;
+  phase: NutritionPhase;
+  currentWeight?: number;
+  targetWeight?: number;
+  months?: number;
+  createdAt?: string;
+};
+
+export type NutritionGoalHistory = NutritionGoals & {
+  id: number;
+  startedAt: string;
+  endedAt: string;
 };
 
 

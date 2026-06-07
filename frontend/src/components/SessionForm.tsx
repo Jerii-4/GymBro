@@ -261,7 +261,8 @@ export const SessionForm: React.FC<Props> = ({ onCreated }) => {
         }))
     };
     markSession(session);
-    if (!isRestDay && finalBodyWeightKg !== undefined) {
+    const existingGoals = useLocalStore.getState().goals;
+    if (!isRestDay && finalBodyWeightKg !== undefined && !existingGoals) {
       const wtNum = finalBodyWeightKg;
       const proteinTarget = wtNum * 2;
       const calorieTarget = Math.round(wtNum * 33);

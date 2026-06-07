@@ -3,9 +3,10 @@ import React from "react";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
+  isDashboard?: boolean;
 };
 
-export const AboutModal: React.FC<Props> = ({ isOpen, onClose }) => {
+export const AboutModal: React.FC<Props> = ({ isOpen, onClose, isDashboard }) => {
   if (!isOpen) return null;
 
   return (
@@ -16,8 +17,8 @@ export const AboutModal: React.FC<Props> = ({ isOpen, onClose }) => {
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(10, 12, 17, 0.85)",
-        backdropFilter: "blur(8px)",
+        background: isDashboard ? "rgba(10, 12, 17, 0.4)" : "rgba(10, 12, 17, 0.85)",
+        backdropFilter: isDashboard ? "blur(4px)" : "none",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -28,8 +29,9 @@ export const AboutModal: React.FC<Props> = ({ isOpen, onClose }) => {
     >
       <div
         style={{
-          background: "#12151e",
-          border: "1px solid #1f2430",
+          background: isDashboard ? "rgba(18, 21, 30, 0.6)" : "#12151e",
+          backdropFilter: isDashboard ? "blur(16px)" : "none",
+          border: isDashboard ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid #1f2430",
           borderRadius: "16px",
           width: "100%",
           maxWidth: "520px",

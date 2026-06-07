@@ -3,9 +3,10 @@ import React, { useState } from "react";
 type ContactModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  isDashboard?: boolean;
 };
 
-export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
+export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDashboard }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -44,8 +45,8 @@ ${details}`;
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(11, 14, 20, 0.9)",
-        backdropFilter: "blur(12px)",
+        backgroundColor: isDashboard ? "rgba(11, 14, 20, 0.4)" : "rgba(11, 14, 20, 0.9)",
+        backdropFilter: isDashboard ? "blur(6px)" : "none",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -58,6 +59,9 @@ ${details}`;
       <div
         className="contact-modal-inner"
         style={{
+          background: isDashboard ? "rgba(13, 15, 19, 0.6)" : "#0d0f13",
+          backdropFilter: isDashboard ? "blur(16px)" : "none",
+          border: isDashboard ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid #1f2430",
           animation: "scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         }}
         onClick={(e) => e.stopPropagation()}
